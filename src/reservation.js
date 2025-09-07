@@ -11,7 +11,7 @@ const db = mysql.createConnection({
 });
 
 // Get all reservations
-router.get("/", (req, res) => {
+router.get("/all", (req, res) => {
     const SELECT_ALL_RESERVATIONS_QUERY = "SELECT date_trajet , gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, numero_train, classe, nbr_place, nom, telephone, email FROM trajet,train,reservation,utilisateur WHERE trajet.trajet_id=reservation.trajet_id AND trajet.train_id=train.train_id AND reservation.utilisateur_id=utilisateur.utilisateur_id";
 
     db.query(

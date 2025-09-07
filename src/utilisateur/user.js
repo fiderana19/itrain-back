@@ -45,8 +45,8 @@ router.post("/login", async (req, res) => {
         }
     );
 });
-//User signing
-router.post("/signin", async (req, res) => {
+//User signup
+router.post("/signup", async (req, res) => {
     const { nom, email,  motdepasse , telephone } = req.body;
 
     if( !nom || !email || !motdepasse) {

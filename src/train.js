@@ -11,7 +11,7 @@ const db = mysql.createConnection({
 });
 
 // Get all trains
-router.get("/", (req, res) => {
+router.get("/all", (req, res) => {
     const SELECT_ALL_TRAINS_QUERY = "SELECT * FROM train";
 
     db.query(
