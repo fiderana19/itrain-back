@@ -34,9 +34,9 @@ router.post("/login", async (req, res) => {
             }
             if (data.length > 0 ) {
                 const id = data[0].utilisateur_id;
-                const isadmin = data[0].isadmin;
-                const token = jwt.sign(id , ACCESS_TOKEN); 
-                return res.send({ token , uid: id ,isadmin: isadmin  })
+                const role = data[0].role;
+                const token = jwt.sign({id, role}, ACCESS_TOKEN); 
+                return res.send({ token })
             }
             return res.status(401).send({
                 success: false,
@@ -77,6 +77,7 @@ router.post("/signup", async (req, res) => {
 router.get("/all", (req, res) => {
     res.json(user.filter(user => user.username !== req.body.username))
 });
+
 //Getting an user by id
 router.get("/get/:id", async (req, res) => {
     const { id } = req.params;
