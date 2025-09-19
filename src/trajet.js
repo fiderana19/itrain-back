@@ -12,7 +12,7 @@ const db = mysql.createConnection({
 
 // Get all trajets
 router.get("/all", (req, res) => {
-    const SELECT_ALL_TRAJETS_QUERY = "SELECT trajet.trajet_id,trajet.train_id, date_trajet , gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, numero_train, classe FROM trajet,train WHERE trajet.train_id=train.train_id;";
+    const SELECT_ALL_TRAJETS_QUERY = "SELECT trajet.trajet_id,trajet.train_id, date_trajet , v1.nom_ville AS ville_depart,v2.nom_ville AS ville_arrive,gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, numero_train, classe FROM trajet,train, ville v1, ville v2 WHERE trajet.train_id=train.train_id AND v1.code_ville=trajet.gare_depart AND v2.code_ville=trajet.gare_arrive;";
 
     db.query(
         SELECT_ALL_TRAJETS_QUERY,
@@ -47,8 +47,7 @@ router.get("/get/:id", (req, res) => {
 // Search trajet
 router.post("/search", (req, res) => {
     const {depart,arrive,date} = req.body;
-    const SELECT_ALL_TRAJETS_QUERY = "SELECT t.*, tr.numero_train, tr.capacite, tr.classe, (tr.capacite - IFNULL(SUM(r.nbr_place), 0)) AS places_disponibles FROM trajet t LEFT JOIN train tr ON t.train_id = tr.train_id LEFT JOIN reservation r ON t.trajet_id = r.trajet_id WHERE (t.gare_depart = ?) AND (t.gare_arrive = ?) AND (t.date_trajet = ?) GROUP BY t.trajet_id, tr.train_id;"
-    // const SELECT_ALL_TRAJETS_QUERY = "SELECT trajet.trajet_id,trajet.train_id, date_trajet , gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, numero_train, classe FROM trajet,train WHERE trajet.train_id=train.train_id AND gare_depart = ? AND gare_arrive = ? AND date_trajet = ? ";
+    const SELECT_ALL_TRAJETS_QUERY = "SELECT t.*, v1.nom_ville as ville_depart, v2.nom_ville as ville_arrive, tr.numero_train, tr.capacite, tr.classe, (tr.capacite - IFNULL(SUM(r.nbr_place), 0)) AS places_disponibles FROM trajet t LEFT JOIN train tr ON t.train_id = tr.train_id LEFT JOIN reservation r ON t.trajet_id = r.trajet_id LEFT JOIN ville v1 ON t.gare_depart = v1.code_ville LEFT JOIN ville v2 ON t.gare_arrive = v2.code_ville WHERE (t.gare_depart = ?) AND (t.gare_arrive = ?) AND (t.date_trajet = ?) GROUP BY t.trajet_id, tr.train_id;"
 
     db.query(
         SELECT_ALL_TRAJETS_QUERY,

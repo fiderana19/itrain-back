@@ -12,7 +12,7 @@ const db = mysql.createConnection({
 
 // Get all reservations
 router.get("/all", (req, res) => {
-    const SELECT_ALL_RESERVATIONS_QUERY = "SELECT date_trajet , gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, numero_train, classe, nbr_place, nom, telephone, email FROM trajet,train,reservation,utilisateur WHERE trajet.trajet_id=reservation.trajet_id AND trajet.train_id=train.train_id AND reservation.utilisateur_id=utilisateur.utilisateur_id";
+    const SELECT_ALL_RESERVATIONS_QUERY = "SELECT date_trajet , v1.nom_ville as gare_depart, v2.nom_ville as gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, numero_train, classe, nbr_place, nom, telephone, email FROM trajet,train,reservation,utilisateur, ville v1, ville v2 WHERE trajet.trajet_id=reservation.trajet_id AND trajet.train_id=train.train_id AND reservation.utilisateur_id=utilisateur.utilisateur_id AND v1.code_ville=trajet.gare_depart AND v2.code_ville=trajet.gare_arrive;";
 
     db.query(
         SELECT_ALL_RESERVATIONS_QUERY,
@@ -47,7 +47,7 @@ router.get("/get/:id", (req, res) => {
 // Get reservation by id
 router.get("/billet/:id", (req, res) => {
     const id = req.params.id;
-    const SELECT_ALL_RESERVATIONS_QUERY = "SELECT date_trajet , gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, numero_train, classe, nbr_place, nom, telephone, email FROM trajet,train,reservation,utilisateur WHERE trajet.trajet_id=reservation.trajet_id AND trajet.train_id=train.train_id AND reservation.utilisateur_id=utilisateur.utilisateur_id AND reservation.utilisateur_id=?;";
+    const SELECT_ALL_RESERVATIONS_QUERY = "SELECT date_trajet , v1.nom_ville as gare_depart, v2.nom_ville as gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, numero_train, classe, nbr_place, nom, telephone, email FROM trajet,train,reservation,utilisateur, ville v1, ville v2 WHERE trajet.trajet_id=reservation.trajet_id AND trajet.train_id=train.train_id AND reservation.utilisateur_id=utilisateur.utilisateur_id AND reservation.utilisateur_id=? AND v1.code_ville=trajet.gare_depart AND v2.code_ville=trajet.gare_arrive;";
 
     db.query(
         SELECT_ALL_RESERVATIONS_QUERY,
