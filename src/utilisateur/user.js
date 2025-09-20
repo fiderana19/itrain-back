@@ -19,7 +19,6 @@ router.post("/login", async (req, res) => {
 
     if(!email || !motdepasse) {
         return res.status(500).send({
-            success: false,
             message: "Veuillez remplir tous les champs !"
         }) 
     }
@@ -35,11 +34,12 @@ router.post("/login", async (req, res) => {
             if (data.length > 0 ) {
                 const id = data[0].utilisateur_id;
                 const role = data[0].role;
-                const token = jwt.sign({id, role}, ACCESS_TOKEN); 
+                const payload = { id, role };
+
+                const token = jwt.sign(payload, ACCESS_TOKEN); 
                 return res.send({ token })
             }
             return res.status(401).send({
-                success: false,
                 message: "Mail ou mot de passe incorrect !"
             }) 
         }
@@ -51,7 +51,6 @@ router.post("/signup", async (req, res) => {
 
     if( !nom || !email || !motdepasse) {
         return res.status(500).send({
-            success: false,
             message: "Veuillez remplir tous les champs !"
         }) 
     }
@@ -62,12 +61,10 @@ router.post("/signup", async (req, res) => {
         (err, data) => {
             if(err) {
                 return res.status(404).send({
-                success: false,
                 message: "Erreur sur l'insertion !"
                 }) 
             }
             return res.status(201).send({
-                success: true,
                 message: "Compte créé avec succès !"
             }) 
         }
@@ -123,7 +120,6 @@ router.delete("/delete/:id", async (req, res) => {
                     return res.json(err);
                 }
                 res.status(201).send({
-                    success: true,
                     message: "Suppression reussie"
                 })            
             }
@@ -151,7 +147,6 @@ router.patch("/edit/:id", async (req, res) => {
                     return res.json(err);
                 }
                 res.status(201).send({
-                    success: true,
                     message: "Modification reussie"
                 })    
             }
