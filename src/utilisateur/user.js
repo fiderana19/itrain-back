@@ -1,4 +1,3 @@
-const ACCESS_TOKEN = '1234'
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
@@ -39,7 +38,7 @@ router.post("/login", async (req, res) => {
                 const role = data[0].role;
                 const payload = { id, role };
 
-                const token = jwt.sign(payload, ACCESS_TOKEN); 
+                const token = jwt.sign(payload, process.env.ACCESS_TOKEN); 
                 return res.send({ token })
             }
             return res.status(401).send({
