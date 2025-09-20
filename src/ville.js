@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
+const authMiddleware = require('./middleware/auth')
+const authorize = require('./middleware/rbac')
 
 // Database connection
 const db = mysql.createConnection({
@@ -27,7 +29,7 @@ router.get("/all", (req, res) => {
 });
 
 // Get ville by id
-router.get("/get/:id", (req, res) => {
+router.get("/get/:id", authMiddleware, authorize(['admin', 'client']), (req, res) => {
     const id = req.params.id;
     const SELECT_VILLE_BY_ID_QUERY = "SELECT * FROM ville WHERE code_ville = ?";
 
@@ -45,7 +47,7 @@ router.get("/get/:id", (req, res) => {
 });
 
 // Add a new ville
-router.post("/create", (req, res) => {
+router.post("/create", authMiddleware, authorize(['admin']), (req, res) => {
     const { code_ville, nom_ville, photo_ville } = req.body;
 
     const INSERT_VILLE_QUERY = "INSERT INTO ville (code_ville, nom_ville, photo_ville) VALUES (? , ?, ?)";
@@ -64,7 +66,7 @@ router.post("/create", (req, res) => {
 });
 
 // Delete a ville
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", authMiddleware, authorize(['admin']), (req, res) => {
     const id = req.params.id;
 
     const DELETE_VILLE_QUERY = "DELETE FROM ville WHERE code_ville = ?";
@@ -83,7 +85,7 @@ router.delete("/delete/:id", (req, res) => {
 });
 
 // Update a ville
-router.patch("/edit/:id", (req, res) => {
+router.patch("/edit/:id", authMiddleware, authorize(['admin']), (req, res) => {
     const id = req.params.id;
     const { nom_ville, photo_ville } = req.body;
 

@@ -3,6 +3,9 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
 const dotenv = require('dotenv');
+const authMiddleware = require('../middleware/auth')
+const authorize = require('../middleware/rbac')
+
 dotenv.config({ path: '../../.env' })
 const jwt = require('jsonwebtoken');
 router.use(express.json())
@@ -76,7 +79,7 @@ router.get("/all", (req, res) => {
 });
 
 //Getting an user by id
-router.get("/get/:id", async (req, res) => {
+router.get("/get/:id", authMiddleware, authorize(['admin', 'client']), async (req, res) => {
     const { id } = req.params;
     const autHeader = req.headers['authorization']
     const token = autHeader && autHeader.split(' ')[1]
@@ -101,7 +104,7 @@ router.get("/get/:id", async (req, res) => {
 });
 
 // Deleting an user
-router.delete("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", authMiddleware, authorize(['admin', 'client']), async (req, res) => {
     const id = req.params.id;
     const autHeader = req.headers['authorization']
     const token = autHeader && autHeader.split(' ')[1]
@@ -127,7 +130,7 @@ router.delete("/delete/:id", async (req, res) => {
     })
 });
 //Updating an use
-router.patch("/edit/:id", async (req, res) => {
+router.patch("/edit/:id", authMiddleware, authorize(['admin', 'client']), async (req, res) => {
     const id = req.params.id;
     const { email,  motdepasse } = req.body;
     const autHeader = req.headers['authorization']

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
+const authMiddleware = require('./middleware/auth')
+const authorize = require('./middleware/rbac')
 
 // Database connection
 const db = mysql.createConnection({
@@ -11,7 +13,7 @@ const db = mysql.createConnection({
 });
 
 // Get all trains
-router.get("/all", (req, res) => {
+router.get("/all", authMiddleware, authorize(['admin']), (req, res) => {
     const SELECT_ALL_TRAINS_QUERY = "SELECT * FROM train";
 
     db.query(
@@ -27,7 +29,7 @@ router.get("/all", (req, res) => {
 });
 
 // Get train by id
-router.get("/get/:id", (req, res) => {
+router.get("/get/:id", authMiddleware, authorize(['admin']), (req, res) => {
     const id = req.params.id;
     const SELECT_ALL_TRAINS_QUERY = "SELECT * FROM train WHERE train_id = ?";
 
@@ -45,7 +47,7 @@ router.get("/get/:id", (req, res) => {
 });
 
 // Add a new train
-router.post("/create", (req, res) => {
+router.post("/create", authMiddleware, authorize(['admin']), (req, res) => {
     const { numero_train, capacite , classe } = req.body;
 
     const INSERT_TRAIN_QUERY = "INSERT INTO train (numero_train, capacite, classe) VALUES (? , ? , ?)";
@@ -64,7 +66,7 @@ router.post("/create", (req, res) => {
 });
 
 // Delete a train
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", authMiddleware, authorize(['admin']), (req, res) => {
     const id = req.params.id;
 
     const DELETE_TRAIN_QUERY = "DELETE FROM train WHERE train_id = ?";
@@ -83,7 +85,7 @@ router.delete("/delete/:id", (req, res) => {
 });
 
 // Update a train
-router.patch("/edit/:id", (req, res) => {
+router.patch("/edit/:id", authMiddleware, authorize(['admin']), (req, res) => {
     const id = req.params.id;
     const { numero_train, capacite, classe } = req.body;
 

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const mysql = require('mysql');
+const authMiddleware = require('./middleware/auth')
+const authorize = require('./middleware/rbac')
 
 // Database connection
 const db = mysql.createConnection({
@@ -11,7 +13,7 @@ const db = mysql.createConnection({
 });
 
 // Get all trajets
-router.get("/all", (req, res) => {
+router.get("/all", authMiddleware, authorize(['admin']), (req, res) => {
     const SELECT_ALL_TRAJETS_QUERY = "SELECT trajet.trajet_id,trajet.train_id, date_trajet , v1.nom_ville AS ville_depart,v2.nom_ville AS ville_arrive,gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, numero_train, classe FROM trajet,train, ville v1, ville v2 WHERE trajet.train_id=train.train_id AND v1.code_ville=trajet.gare_depart AND v2.code_ville=trajet.gare_arrive;";
 
     db.query(
@@ -27,7 +29,7 @@ router.get("/all", (req, res) => {
 });
 
 // Get trajet by id
-router.get("/get/:id", (req, res) => {
+router.get("/get/:id", authMiddleware, authorize(['admin', 'client']), (req, res) => {
     const id = req.params.id;
     const SELECT_ALL_TRAJETS_QUERY = "SELECT * FROM trajet WHERE trajet_id = ?";
 
@@ -64,7 +66,7 @@ router.post("/search", (req, res) => {
 
 
 // Add a new trajet
-router.post("/create", (req, res) => {
+router.post("/create", authMiddleware, authorize(['admin']), (req, res) => {
     const { date_trajet, gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, train_id } = req.body;
 
     const INSERT_TRAJET_QUERY = "INSERT INTO trajet (date_trajet , gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet,  train_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -83,7 +85,7 @@ router.post("/create", (req, res) => {
 });
 
 // Delete a trajet
-router.delete("/delete/:id", (req, res) => {
+router.delete("/delete/:id", authMiddleware, authorize(['admin']), (req, res) => {
     const id = req.params.id;
 
     const DELETE_TRAJET_QUERY = "DELETE FROM trajet WHERE trajet_id = ?";
@@ -102,7 +104,7 @@ router.delete("/delete/:id", (req, res) => {
 });
 
 // Update a trajet
-router.patch("/edit/:id", (req, res) => {
+router.patch("/edit/:id", authMiddleware, authorize(['admin']), (req, res) => {
     const id = req.params.id;
     const { date_trajet ,gare_depart, gare_arrive, duree_trajet, heure_depart, heure_arrive, billet, train_id } = req.body;
 
