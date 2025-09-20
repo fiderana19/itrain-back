@@ -1,20 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
-const dotenv = require('dotenv');
 const authMiddleware = require('../middleware/auth')
 const authorize = require('../middleware/rbac')
-
-dotenv.config({ path: '../../.env' })
+const Connect = require('../db/connection')
 const jwt = require('jsonwebtoken');
+const db = Connect;
 router.use(express.json())
-//Database connection
-const db = mysql.createConnection({
-    host : "localhost",
-    user : "root",
-    password : "",
-    database : "reservation_train",
-})
+
 //User login
 router.post("/login", async (req, res) => {
     const { email , motdepasse } = req.body;
@@ -38,7 +30,7 @@ router.post("/login", async (req, res) => {
                 const role = data[0].role;
                 const payload = { id, role };
 
-                const token = jwt.sign(payload, process.env.ACCESS_TOKEN); 
+                const token = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET); 
                 return res.send({ token })
             }
             return res.status(401).send({
@@ -79,82 +71,55 @@ router.get("/all", (req, res) => {
 
 //Getting an user by id
 router.get("/get/:id", authMiddleware, authorize(['admin', 'client']), async (req, res) => {
-    const { id } = req.params;
-    const autHeader = req.headers['authorization']
-    const token = autHeader && autHeader.split(' ')[1]
-    if (token === '') return res.sendStatus(401)
+    const id = req.params.id;
 
-    jwt.verify(token, ACCESS_TOKEN , (err , user) => {
-        if (err) return res.sendStatus(403)
-        req.user = user
-
-        db.query(
-            "SELECT utilisateur_id, nom, email, telephone FROM utilisateur WHERE utilisateur_id = ?",
-            [id],
-            (err, data) => {
-                if(err) {
-                console.log(err);
-                return res.json(err);
-                }
-            return res.json(data);
+    db.query(
+        "SELECT utilisateur_id, nom, email, telephone FROM utilisateur WHERE utilisateur_id = ?",
+        [id],
+        (err, data) => {
+            if(err) {
+            console.log(err);
+            return res.json(err);
             }
-        );
-    })
+        return res.json(data);
+        }
+    );
 });
 
 // Deleting an user
 router.delete("/delete/:id", authMiddleware, authorize(['admin', 'client']), async (req, res) => {
     const id = req.params.id;
-    const autHeader = req.headers['authorization']
-    const token = autHeader && autHeader.split(' ')[1]
-    if (token === '') return res.sendStatus(401)
-
-    jwt.verify(token, ACCESS_TOKEN , (err , user) => {
-        if (err) return res.sendStatus(403)
-        req.user = user
-
-        db.query(
-            "DELETE FROM utilisateur WHERE utilisateur_id = ?",
-            [id],
-            (err, data) => {
-                if(err) {
-                    console.log(err);
-                    return res.json(err);
-                }
-                res.status(201).send({
-                    message: "Suppression reussie"
-                })            
+    db.query(
+        "DELETE FROM utilisateur WHERE utilisateur_id = ?",
+        [id],
+        (err, data) => {
+            if(err) {
+                console.log(err);
+                return res.json(err);
             }
-        );
-    })
+            res.status(201).send({
+                message: "Suppression reussie"
+            })            
+        }
+    );
 });
 //Updating an use
 router.patch("/edit/:id", authMiddleware, authorize(['admin', 'client']), async (req, res) => {
     const id = req.params.id;
     const { email,  motdepasse } = req.body;
-    const autHeader = req.headers['authorization']
-    const token = autHeader && autHeader.split(' ')[1]
-    if (token === '') return res.sendStatus(401)
-
-    jwt.verify(token, ACCESS_TOKEN , (err , user) => {
-        if (err) return res.sendStatus(403)
-        req.user = user
-
-        db.query(
-            "UPDATE utilisateur SET email = ? , motdepasse = ? WHERE utilisateur_id = ?",
-            [ email , motdepasse , id],
-            (err, data) => {
-                if(err) {
-                    console.log(err);
-                    return res.json(err);
-                }
-                res.status(201).send({
-                    message: "Modification reussie"
-                })    
+    db.query(
+        "UPDATE utilisateur SET email = ? , motdepasse = ? WHERE utilisateur_id = ?",
+        [ email , motdepasse , id],
+        (err, data) => {
+            if(err) {
+                console.log(err);
+                return res.json(err);
             }
-        );
-    })
-
+            res.status(201).send({
+                message: "Modification reussie"
+            })    
+        }
+    );
 });
 
 module.exports = router;

@@ -1,16 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql');
+const Connect = require('./db/connection')
 const authMiddleware = require('./middleware/auth')
 const authorize = require('./middleware/rbac')
-
-// Database connection
-const db = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "reservation_train",
-});
+const db = Connect;
 
 // Get all ville
 router.get("/all", (req, res) => {

@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const ACCESS_TOKEN = '1234'
 
 const authMiddleware = (req, res, next) => {
     const token = req.header('Authorization')?.replace('Bearer ', '');
@@ -11,7 +10,7 @@ const authMiddleware = (req, res, next) => {
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN);
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
         req.user = decoded;
 
