@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
+    "format": "prettier --write \"src/**/*.js\" \"**/*.js\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
