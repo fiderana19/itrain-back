@@ -18,8 +18,8 @@ router.post("/login", async (req, res) => {
   }
 
   db.query(
-    "SELECT * FROM utilisateur WHERE email = ? OR telephone = ? AND motdepasse = ?",
-    [email, email, motdepasse],
+    "SELECT * FROM utilisateur WHERE email = ? AND motdepasse = ?",
+    [email, motdepasse],
     (err, data) => {
       if (err) {
         console.log(err);
